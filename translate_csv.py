@@ -66,11 +66,13 @@ if __name__ == "__main__":
     # 1. Order of keys = The order of columns in your NEW file.
     # 2. If a column is NOT in this dictionary, it will be DROPPED from the new file.
     # 3. Format -> 'Old Name': 'New Name'
-    COLUMN_MAP = {
-        'Email Address': 'email',  # This will now be the FIRST column
-        'User Age': 'age',         # This will be the SECOND column
-        'First Name': 'fname',     # This will be the THIRD column
-        'Last Name': 'lname'       # This will be the FOURTH column
+    COLUMN_MAP = {        
+        'Date': 'date',
+        'Name': 'Payee',        
+        'Category': 'category',
+        'Custom Name': 'custom_name',                
+        'Amount': 'amount',       
+
     }
 
     translate_csv(INPUT_CSV, OUTPUT_CSV, COLUMN_MAP)

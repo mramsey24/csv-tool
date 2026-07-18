@@ -1,0 +1,6 @@
+# Old Name=New Name
+Date=date
+Name=Payee
+Category=category
+Custom Name=custom_name
+Amount=amount

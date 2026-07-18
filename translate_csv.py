@@ -8,6 +8,59 @@ import argparse
 import pandas as pd
 import os
 
+
+def load_column_mapping(mapping_file):
+    """
+    Load column mapping from a name/value pairs file.
+
+    Supported line formats:
+    - Old Name=New Name
+    - Old Name:New Name
+
+    Blank lines and lines starting with '#' are ignored.
+    """
+    if not os.path.exists(mapping_file):
+        print(f"Error: Mapping file '{mapping_file}' was not found.")
+        return None
+
+    column_map = {}
+
+    try:
+        with open(mapping_file, "r", encoding="utf-8") as f:
+            for line_number, raw_line in enumerate(f, start=1):
+                line = raw_line.strip()
+
+                if not line or line.startswith("#"):
+                    continue
+
+                separator = "=" if "=" in line else ":" if ":" in line else None
+                if separator is None:
+                    print(
+                        f"Warning: Skipping invalid mapping at line {line_number}: '{raw_line.rstrip()}'"
+                    )
+                    continue
+
+                old_name, new_name = line.split(separator, 1)
+                old_name = old_name.strip()
+                new_name = new_name.strip()
+
+                if not old_name or not new_name:
+                    print(
+                        f"Warning: Skipping empty mapping at line {line_number}: '{raw_line.rstrip()}'"
+                    )
+                    continue
+
+                column_map[old_name] = new_name
+    except Exception as e:
+        print(f"Error reading mapping file '{mapping_file}': {e}")
+        return None
+
+    if not column_map:
+        print(f"Error: No valid mappings found in '{mapping_file}'.")
+        return None
+
+    return column_map
+
 def translate_csv(input_file, output_file, column_mapping):
     """
     Translates a CSV file. 
@@ -60,23 +113,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Translate and filter columns in a CSV file.")
     parser.add_argument("--input", "-i", default="source_data.csv", help="Path to the source CSV file (default: source_data.csv)")
     parser.add_argument("--output", "-o", default="transformed_data.csv", help="Path for the output CSV file (default: transformed_data.csv)")
+    parser.add_argument("--map", "-m", default="column_map.txt", help="Path to the column mapping file (default: column_map.txt)")
     args = parser.parse_args()
 
     INPUT_CSV = args.input
     OUTPUT_CSV = args.output
-    
-    # THE TRANSLATION MAP
-    # Rules:
-    # 1. Order of keys = The order of columns in your NEW file.
-    # 2. If a column is NOT in this dictionary, it will be DROPPED from the new file.
-    # 3. Format -> 'Old Name': 'New Name'
-    COLUMN_MAP = {        
-        'Date': 'date',
-        'Name': 'Payee',        
-        'Category': 'category',
-        'Custom Name': 'custom_name',                
-        'Amount': 'amount',       
+    MAP_FILE = args.map
 
-    }
+    COLUMN_MAP = load_column_mapping(MAP_FILE)
+    if COLUMN_MAP is None:
+        raise SystemExit(1)
 
     translate_csv(INPUT_CSV, OUTPUT_CSV, COLUMN_MAP)

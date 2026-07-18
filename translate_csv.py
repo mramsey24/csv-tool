@@ -4,6 +4,7 @@
 # ]
 # ///
 
+import argparse
 import pandas as pd
 import os
 
@@ -56,10 +57,13 @@ def translate_csv(input_file, output_file, column_mapping):
         print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    # --- CONFIGURATION AREA ---
-    
-    INPUT_CSV = 'source_data.csv' 
-    OUTPUT_CSV = 'transformed_data.csv'
+    parser = argparse.ArgumentParser(description="Translate and filter columns in a CSV file.")
+    parser.add_argument("--input", "-i", default="source_data.csv", help="Path to the source CSV file (default: source_data.csv)")
+    parser.add_argument("--output", "-o", default="transformed_data.csv", help="Path for the output CSV file (default: transformed_data.csv)")
+    args = parser.parse_args()
+
+    INPUT_CSV = args.input
+    OUTPUT_CSV = args.output
     
     # THE TRANSLATION MAP
     # Rules:
